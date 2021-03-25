@@ -1,0 +1,35 @@
+{
+    "os": "Linux-4.15.0-65-generic-x86_64-with-debian-buster-sid",
+    "python": "3.7.4",
+    "heartbeatAt": "2021-02-22T02:30:08.113901",
+    "startedAt": "2021-02-22T02:30:01.049193",
+    "docker": null,
+    "gpu": "Tesla K80",
+    "gpu_count": 2,
+    "cpu_count": 16,
+    "cuda": "10.0.130",
+    "args": [
+        "--method=var_geom_mean",
+        "--agreement_threshold=1.",
+        "--n_train_envs=64",
+        "--n_agreement_envs=64",
+        "--batch_size=256",
+        "--n_dims=16",
+        "--scale_grad_inverse_sparsity=1",
+        "--use_cuda=1",
+        "--n_hidden_units=256",
+        "--seed=42"
+    ],
+    "state": "running",
+    "codePath": "and_mask/run_synthetic.py",
+    "program": "/home/mila/s/soroosh.shahtalebi/ILC/code/and_mask/run_synthetic.py",
+    "git": {
+        "remote": "https://github.com/gibipara92/learning-explanations-hard-to-vary.git",
+        "commit": "e45a7b01b87f0bc2f9a583a2c051e901efd66800"
+    },
+    "email": null,
+    "root": "/home/mila/s/soroosh.shahtalebi/ILC/code",
+    "host": "kepler3",
+    "username": "soroosh.shahtalebi",
+    "executable": "/home/mila/s/soroosh.shahtalebi/env-ILC/bin/python"
+}

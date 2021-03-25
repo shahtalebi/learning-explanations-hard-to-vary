@@ -1,0 +1,1 @@
+{"test-loss": 4.685566425323486, "_step": 599, "_runtime": 32, "_timestamp": 1614202221, "test-acc": 0.5145, "graph_0": {"_type": "graph-file", "path": "media/graph/graph_0_summary_eeface22.graph.json", "sha256": "eeface2200bdde5a4fcc5896065d5850112be958483830e79dacd33de48dcd18", "size": 1411}, "train-loss": 0.004765599500387907, "train-acc": 0.9999999999999756}

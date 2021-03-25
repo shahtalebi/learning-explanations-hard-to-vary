@@ -1,0 +1,43 @@
+{
+    "os": "Linux-4.15.0-47-generic-x86_64-with-debian-buster-sid",
+    "python": "3.7.4",
+    "heartbeatAt": "2021-03-01T18:48:26.641046",
+    "startedAt": "2021-03-01T18:48:23.392359",
+    "docker": null,
+    "gpu": "Tesla K80",
+    "gpu_count": 1,
+    "cpu_count": 16,
+    "cuda": "10.0.130",
+    "args": [
+        "--random_labels_fraction",
+        "1.0",
+        "--agreement_threshold",
+        "0.2",
+        "--method",
+        "var_mask",
+        "--epochs",
+        "80",
+        "--weight_decay",
+        "1e-06",
+        "--scale_grad_inverse_sparsity",
+        "1",
+        "--init_lr",
+        "0.0005",
+        "--weight_decay_order",
+        "before",
+        "--output_dir",
+        "./tmp/"
+    ],
+    "state": "running",
+    "codePath": "and_mask/run_cifar.py",
+    "program": "/home/mila/s/soroosh.shahtalebi/ILC/code/and_mask/run_cifar.py",
+    "git": {
+        "remote": "https://github.com/gibipara92/learning-explanations-hard-to-vary.git",
+        "commit": "e45a7b01b87f0bc2f9a583a2c051e901efd66800"
+    },
+    "email": null,
+    "root": "/home/mila/s/soroosh.shahtalebi/ILC/code",
+    "host": "kepler2",
+    "username": "soroosh.shahtalebi",
+    "executable": "/home/mila/s/soroosh.shahtalebi/env-ILC/bin/python"
+}

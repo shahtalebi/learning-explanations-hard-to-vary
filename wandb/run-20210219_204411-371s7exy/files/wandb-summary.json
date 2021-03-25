@@ -1,0 +1,1 @@
+{"test-loss": 1.3862944841384888, "_step": 599, "_runtime": 123, "_timestamp": 1613785574, "test-acc": 0.505, "graph_0": {"_type": "graph-file", "path": "media/graph/graph_0_summary_b7dc2296.graph.json", "sha256": "b7dc229648ce832f74081e34e989b571b4a96e9bca921f401e3c7678f930eb5f", "size": 1411}, "train-loss": 0.6931470632553101, "train-acc": 0.5006866455078117}

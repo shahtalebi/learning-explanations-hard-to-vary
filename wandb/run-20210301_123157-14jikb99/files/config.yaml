@@ -1,0 +1,58 @@
+wandb_version: 1
+
+_wandb:
+  desc: null
+  value:
+    cli_version: 0.10.16
+    framework: ignite
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    python_version: 3.7.4
+    t:
+      1:
+      - 1
+      - 10
+      2:
+      - 1
+      - 10
+      4: 3.7.4
+      5: 0.10.16
+agreement_threshold:
+  desc: null
+  value: 0.2
+batch_size:
+  desc: null
+  value: 80
+data_path:
+  desc: null
+  value: /tmp/cifar_dataset
+epochs:
+  desc: null
+  value: 80
+init_lr:
+  desc: null
+  value: 0.0005
+method:
+  desc: null
+  value: var_mask
+num_workers:
+  desc: null
+  value: 10
+output_dir:
+  desc: null
+  value: ./tmp/
+random_labels_fraction:
+  desc: null
+  value: 1.0
+scale_grad_inverse_sparsity:
+  desc: null
+  value: 1
+seed:
+  desc: null
+  value: 0
+weight_decay:
+  desc: null
+  value: 1.0e-06
+weight_decay_order:
+  desc: null
+  value: before

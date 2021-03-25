@@ -1,0 +1,80 @@
+wandb_version: 1
+
+_wandb:
+  desc: null
+  value:
+    cli_version: 0.10.16
+    framework: torch
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    python_version: 3.7.4
+    t:
+      1:
+      - 1
+      2:
+      - 1
+      - 3
+      3:
+      - 1
+      4: 3.7.4
+      5: 0.10.16
+agreement_threshold:
+  desc: null
+  value: 1.0
+batch_norm:
+  desc: null
+  value: 0
+batch_size:
+  desc: null
+  value: 256
+dropout_p:
+  desc: null
+  value: 0.0
+epochs:
+  desc: null
+  value: 150
+examples_per_env:
+  desc: null
+  value: 1024
+l1_coef:
+  desc: null
+  value: 0.0
+lr:
+  desc: null
+  value: 0.01
+method:
+  desc: null
+  value: geom_mean
+n_agreement_envs:
+  desc: null
+  value: 4
+n_dims:
+  desc: null
+  value: 16
+n_hidden_layers:
+  desc: null
+  value: 3
+n_hidden_units:
+  desc: null
+  value: 256
+n_revolutions:
+  desc: null
+  value: 3
+n_test:
+  desc: null
+  value: 2000
+n_train_envs:
+  desc: null
+  value: 4
+scale_grad_inverse_sparsity:
+  desc: null
+  value: 1
+seed:
+  desc: null
+  value: 23
+use_cuda:
+  desc: null
+  value: 1
+weight_decay:
+  desc: null
+  value: 0.001
