@@ -16,6 +16,18 @@ from and_mask.datasets.common import permutation_groups
 import and_mask.datasets.synthetic.dataloader as synthetic_dataloader
 from and_mask.models.synthetic import get_synthetic_model
 from and_mask.utils.utils import add_l1_grads, validate_target_outupt_shapes, count_correct
+#==================================================================================
+import os
+import wandb
+#wandb login '25d4f60712fad69c46dafd9a678633ac625fcbdb'
+#_ = os.system('wandb login {}'.format('25d4f60712fad69c46dafd9a678633ac625fcbdb'))
+#os.environ['WANDB_API_KEY'] = '25d4f60712fad69c46dafd9a678633ac625fcbdb'
+
+wandb.init(project='ilc', group='synthetic-dataset')
+
+#model = get_model(num_classes=10)
+#wandb.watch(model)
+#==================================================================================
 
 
 def parse_args():
@@ -28,7 +40,7 @@ def parse_args():
     parser.add_argument('--n_dims', type=int, default=8)
     parser.add_argument('--batch_size', type=int, default=256)
     parser.add_argument('--epochs', type=int, default=150)
-    parser.add_argument('--method', type=str, choices=['and_mask', 'geom_mean'], required=True)
+    parser.add_argument('--method', type=str, choices=['and_mask', 'geom_mean', 'var_mask', 'var_geom_mean'], required=True)
     parser.add_argument('--scale_grad_inverse_sparsity', type=int, choices=[0, 1], required=True)
     parser.add_argument('--agreement_threshold', type=float, required=True)
     parser.add_argument('--lr', type=float, default=1e-2)
@@ -115,10 +127,13 @@ def train(model, device, train_loaders, optimizer, epoch, writer,
     # Logging
     train_loss = np.mean(losses)
     train_acc = correct / (example_count + 1e-10)
-    writer.add_scalar(f'weight/norm', train_loss, epoch)
-    writer.add_scalar(f'mean_loss/train{log_suffix}', train_loss, epoch)
-    writer.add_scalar(f'acc/train{log_suffix}', train_acc, epoch)
-    logger.info(f'Train Epoch: {epoch}\t Acc: {train_acc:.4} \tLoss: {train_loss:.6f}')
+    #writer.add_scalar(f'weight/norm', train_loss, epoch)
+    #writer.add_scalar(f'mean_loss/train{log_suffix}', train_loss, epoch)
+    #writer.add_scalar(f'acc/train{log_suffix}', train_acc, epoch)
+    #logger.info(f'Train Epoch: {epoch}\t Acc: {train_acc:.4} \tLoss: {train_loss:.6f}')
+    
+    wandb.log({"train-loss": train_loss})
+    wandb.log({"train-acc": train_acc})
 
 
 def run_test(model, device, test_loader, writer, epoch, loss_fn, log_suffix=''):
@@ -145,8 +160,11 @@ def run_test(model, device, test_loader, writer, epoch, loss_fn, log_suffix=''):
         test_loss, correct, total,
         100. * test_acc))
 
-    writer.add_scalar(f'loss/test{log_suffix}', test_loss, epoch)
-    writer.add_scalar(f'acc/test{log_suffix}', test_acc, epoch)
+    #writer.add_scalar(f'loss/test{log_suffix}', test_loss, epoch)
+    #writer.add_scalar(f'acc/test{log_suffix}', test_acc, epoch)
+    
+    wandb.log({"test-loss": test_loss})
+    wandb.log({"test-acc": test_acc})
 
 
 def main(args):
@@ -183,7 +201,8 @@ def main(args):
     summary_writer = SummaryWriter(f'/tmp/learning_explanations_exp_out/seed_{args.seed}/')
 
     model = get_synthetic_model(args, device)
-
+    wandb.watch(model)
+    
     def init_weights(m):
         if type(m) == nn.Linear:
             torch.nn.init.kaiming_normal_(m.weight)
@@ -239,4 +258,5 @@ if __name__ == '__main__':
     torch.manual_seed(0)
     np.random.seed(0)
     args = parse_args()
+    wandb.config.update(args)
     main(args)

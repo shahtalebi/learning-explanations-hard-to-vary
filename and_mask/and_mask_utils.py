@@ -76,6 +76,29 @@ def get_grads(agreement_threshold, batch_size, loss_fn,
             param.grad = mask * prod_grad
             if scale_grad_inverse_sparsity:
                 param.grad *= (1. / (1e-10 + mask_t))
+        elif method == 'var_mask':
+            lam = grads.var(dim=0).pow(-1)
+            #mask = torch.sigmoid(lam*(torch.mean(grad_signs, dim=0).abs() - agreement_threshold))
+            mask = torch.tanh(lam * (torch.abs(grad_signs.mean(dim=0)) - agreement_threshold))
+            mask = torch.max(mask, torch.zeros_like(mask))
+            mask = mask.to(torch.float32)
+            assert mask.numel() == param.numel()
+            mask_t = (mask.sum() / mask.numel())
+            param.grad = mask * avg_grad
+            if scale_grad_inverse_sparsity:
+                param.grad *= (1. / (1e-10 + mask_t))
+        elif method == 'var_geom_mean':
+            lam = grads.var(dim=0).pow(-1)
+            #mask = torch.sigmoid(lam*(torch.mean(grad_signs, dim=0).abs() - agreement_threshold))
+            mask = torch.tanh(lam * (torch.abs(grad_signs.mean(dim=0)) - agreement_threshold))
+            mask = torch.max(mask, torch.zeros_like(mask))
+            mask = mask.to(torch.float32)
+            assert mask.numel() == param.numel()
+            prod_grad = torch.sign(avg_grad) * torch.exp(torch.sum(torch.log(torch.abs(grads) + 1e-10), dim=0) / n_agreement_envs)
+            mask_t = (mask.sum() / mask.numel())
+            param.grad = mask * prod_grad
+            if scale_grad_inverse_sparsity:
+                param.grad *= (1. / (1e-10 + mask_t))
         else:
             raise ValueError()
 

@@ -15,19 +15,27 @@ from ignite.metrics import Accuracy, Loss
 from ignite.utils import convert_tensor
 from torch.optim.lr_scheduler import MultiStepLR
 
+from ignite.contrib.handlers.wandb_logger import *
+
 import and_mask.and_mask_utils as and_mask_utils
 from and_mask.utils.ignite_cifar10_utils import get_train_test_loaders, get_model
 from and_mask.optimizers.adam_flexible_weight_decay import AdamFlexibleWeightDecay
+#==================================================================================
+import wandb
+wandb.init(project='ilc', group='cifar10')
 
+ctr=0
 
+#model = get_model(num_classes=10)
+#wandb.watch(model)
+#==================================================================================
 def run(output_dir, config):
-    device = "cuda"
 
     torch.manual_seed(config['seed'])
     np.random.seed(config['seed'])
 
     # Rescale batch_size and num_workers
-    ngpus_per_node = 1
+    ngpus_per_node = 2
     batch_size = config['batch_size']
     num_workers = int((config['num_workers'] + ngpus_per_node - 1) / ngpus_per_node)
 
@@ -41,9 +49,10 @@ def run(output_dir, config):
         random_labels_fraction=config['random_labels_fraction'],
     )
 
+    device = "cuda"
     model = get_model(num_classes=10)
     model = model.to(device)
-
+        
     optimizer = AdamFlexibleWeightDecay(model.parameters(),
                                         lr=config['init_lr'],
                                         weight_decay_order=config['weight_decay_order'],
@@ -100,11 +109,11 @@ def run(output_dir, config):
                                           with_pbar_on_iters=True,
                                           log_every_iters=10)
 
-    tb_logger = TensorboardLogger(log_dir=output_dir)
-    tb_logger.attach(trainer,
-                     log_handler=OutputHandler(tag="train",
-                                               metric_names=metric_names),
-                     event_name=Events.ITERATION_COMPLETED)
+    #tb_logger = TensorboardLogger(log_dir=output_dir)
+    #tb_logger.attach(trainer,
+    #                 log_handler=OutputHandler(tag="train",
+    #                                           metric_names=metric_names),
+    #                 event_name=Events.ITERATION_COMPLETED)
 
     metrics = {
         "accuracy": Accuracy(),
@@ -122,17 +131,66 @@ def run(output_dir, config):
             mislabeled_train_evaluator.run(mislabeled_train_loader)
         test_evaluator.run(test_loader)
 
-    def flush_metrics(engine):
-        tb_logger.writer.flush()
+    #def flush_metrics(engine):
+    #    tb_logger.writer.flush()
 
     trainer.add_event_handler(Events.EPOCH_STARTED(every=1), run_validation)
     trainer.add_event_handler(Events.COMPLETED, run_validation)
-    trainer.add_event_handler(Events.EPOCH_COMPLETED, flush_metrics)
+    #trainer.add_event_handler(Events.EPOCH_COMPLETED, flush_metrics)
 
     ProgressBar(persist=False, desc="Train evaluation").attach(train_evaluator)
     ProgressBar(persist=False, desc="Test evaluation").attach(test_evaluator)
     ProgressBar(persist=False, desc="Train (mislabeled portion) evaluation").attach(mislabeled_train_evaluator)
+    #========================================================================================================
+    #WandBlogger Object Creation
+    wandb_logger = WandBLogger(
+    project="ilc",
+    name="cifar10",
+    config=args,
+    )
 
+    wandb_logger.attach_output_handler(
+    trainer,
+    event_name=Events.ITERATION_COMPLETED,
+    tag="training",
+    output_transform=lambda loss: {"loss": loss}
+    )
+
+    wandb_logger.attach_output_handler(
+    train_evaluator,
+    event_name=Events.EPOCH_COMPLETED,
+    tag="training",
+    metric_names=["accuracy","loss"],
+    global_step_transform=lambda *_: trainer.state.iteration,
+    )
+    
+    wandb_logger.attach_output_handler(
+    test_evaluator,
+    event_name=Events.EPOCH_COMPLETED,
+    tag="training",
+    metric_names=["accuracy","loss"],
+    global_step_transform=lambda *_: trainer.state.iteration,
+    )
+    
+    wandb_logger.attach_output_handler(
+    mislabeled_train_evaluator,
+    event_name=Events.EPOCH_COMPLETED,
+    tag="training",
+    metric_names=["accuracy","loss"],
+    global_step_transform=lambda *_: trainer.state.iteration,
+    )
+
+    wandb_logger.attach_opt_params_handler(
+    trainer,
+    event_name=Events.ITERATION_STARTED,
+    optimizer=optimizer,
+    param_name='lr'  # optional
+    )
+
+    #========================================================================================================   
+    trainer_rng = np.random.RandomState()
+    trainer.run(train_loader, max_epochs=config['epochs'])
+    '''
     tb_logger.attach(train_evaluator,
                      log_handler=OutputHandler(tag="train",
                                                metric_names=list(metrics.keys()),
@@ -149,12 +207,11 @@ def run(output_dir, config):
                                                global_step_transform=global_step_from_engine(trainer)),
                      event_name=Events.COMPLETED)
 
-    trainer_rng = np.random.RandomState()
-    trainer.run(train_loader, max_epochs=config['epochs'],
-                seed=trainer_rng.randint(2 ** 32))
+    
+    #trainer.run(train_loader, max_epochs=config['epochs'], seed=trainer_rng.randint(2 ** 32))
 
     tb_logger.close()
-
+    '''
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -163,7 +220,7 @@ if __name__ == "__main__":
     parser.add_argument('--data_path', type=str, default="/tmp/cifar_dataset")
     parser.add_argument('--agreement_threshold', type=float, required=True)
     parser.add_argument('--weight_decay', type=float, required=True)
-    parser.add_argument('--method', type=str, choices=['and_mask', 'geom_mean'], required=True)
+    parser.add_argument('--method', type=str, choices=['and_mask', 'geom_mean', 'var_mask', 'var_geom_mean'], required=True)
     parser.add_argument('--scale_grad_inverse_sparsity', type=int, required=True)
     parser.add_argument('--init_lr', type=float, required=True)
     parser.add_argument('--random_labels_fraction', type=float, required=True)
@@ -182,7 +239,7 @@ if __name__ == "__main__":
 
     print("Train on CIFAR10")
     print("- PyTorch version: {}".format(torch.__version__))
-    print("- Ignite version: {}".format(ignite.__version__))
+    #print("- Ignite version: {}".format(ignite.__version__))
     print("- CUDA version: {}".format(torch.version.cuda))
 
     print("\n")
@@ -190,6 +247,8 @@ if __name__ == "__main__":
     for key, value in config.items():
         print("\t{}: {}".format(key, value))
     print("\n")
+    
+    wandb.config.update(args)
 
     try:
         run(args.output_dir, config)
@@ -197,3 +256,5 @@ if __name__ == "__main__":
         print("Catched KeyboardInterrupt -> exit")
     except Exception as e:
         raise e
+
+    #wandb.config.update(args)
